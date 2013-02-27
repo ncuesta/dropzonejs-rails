@@ -26,7 +26,7 @@ And **Bam!** - you're all set.
 
 ## Issues, Requests, Comments, Poetry
 
-Go to [this secret place][https://github.com/ncuesta/dropzonejs-rails/issues].
+Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 
 ## Contributing
