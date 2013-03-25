@@ -411,8 +411,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     __extends(Dropzone, _super);
 
-    Dropzone.prototype.version = "2.0.1";
-
     /*
       This is a list of all available events you can register on a dropzone object.
     
@@ -452,7 +450,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         _ref = this.element.getElementsByTagName("div");
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          if (/message/.test(child.className)) {
+          if (/(^| )message($| )/.test(child.className)) {
             messageElement = child;
             child.className = "message";
             continue;
@@ -536,6 +534,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     function Dropzone(element, options) {
       var elementId, elementOptions, extend, fallback, _ref;
       this.element = element;
+      this.version = Dropzone.version;
       this.defaultOptions.previewTemplate = this.defaultOptions.previewTemplate.replace(/\n*/g, "");
       if (typeof this.element === "string") {
         this.element = document.querySelector(this.element);
@@ -546,6 +545,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       if (Dropzone.forElement(this.element)) {
         throw new Error("Dropzone already attached.");
       }
+      Dropzone.instances.push(this);
       elementId = this.element.id;
       elementOptions = (_ref = (elementId ? Dropzone.options[camelize(elementId)] : void 0)) != null ? _ref : {};
       extend = function() {
@@ -570,8 +570,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       if (!Dropzone.isBrowserSupported()) {
         return this.options.fallback.call(this);
       }
-      if (fallback = this.getExistingFallback()) {
-        fallback.remove();
+      if ((fallback = this.getExistingFallback()) && fallback.parentNode) {
+        fallback.parentNode.removeChild(fallback);
       }
       this.previewsContainer = this.options.previewsContainer ? createElement(this.options.previewsContainer) : this.element;
       this.init();
@@ -681,7 +681,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         var el, _i, _len;
         for (_i = 0, _len = elements.length; _i < _len; _i++) {
           el = elements[_i];
-          if (/fallback/.test(el.className)) {
+          if (/(^| )fallback($| )/.test(el.className)) {
             return el;
           }
         }
@@ -961,6 +961,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   })(Em);
 
+  Dropzone.version = "2.0.3";
+
   Dropzone.options = {};
 
   Dropzone.instances = [];
@@ -1096,7 +1098,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         _results = [];
         for (_i = 0, _len = elements.length; _i < _len; _i++) {
           el = elements[_i];
-          if (/dropzone/.test(el.className)) {
+          if (/(^| )dropzone($| )/.test(el.className)) {
             _results.push(dropzones.push(el));
           } else {
             _results.push(void 0);
