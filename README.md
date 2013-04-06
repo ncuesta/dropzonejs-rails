@@ -22,11 +22,11 @@ After that, you need to make `dropzone.js` available on your pages. To do that, 
 ```
 
 And if you would like to use one of the styles bundled with Dropzone, add to your `application.css`:
-```css
+```scss
 //= require dropzone/basic
 ```
 or
-```css
+```scss
 //= require dropzone/dropzone
 ```
 
