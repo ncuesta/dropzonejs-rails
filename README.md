@@ -47,7 +47,7 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 **DO NOT - I repeat - DO NOT bump version numbers.** Unless you **really** need to.
 
 
-### Getting the latest version of Raptor Editor
+### Getting the latest version of Dropzone
 
 1. Update `DropzonejsRails::DROPZONE_VERSION` to the newest version of Dropzone.
 1. Do a `rake get` - it'll download the file four you.
