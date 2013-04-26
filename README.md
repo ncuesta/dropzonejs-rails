@@ -2,6 +2,10 @@
 
 Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file upload JS library right into the Asset pipeline of your Rails apps.
 
+## Version
+
+The latest version of this gem bundles **Dropzone v2.0.14**.
+
 ## Installation and usage
 
 First add `dropzonejs-rails` to your Gemfile and, as you already know, `bundle` it and then restart your Rails app:
