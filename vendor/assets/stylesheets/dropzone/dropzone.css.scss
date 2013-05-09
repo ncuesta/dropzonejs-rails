@@ -171,7 +171,7 @@
   -o-transition: opacity 0.3s ease-in-out;
   -ms-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
-  background-image: image-url("dropzone/spritemap.png");
+  background-image: image-path("dropzone/spritemap.png");
   background-repeat: no-repeat;
   background-position: 0 0;
   position: absolute;
@@ -184,7 +184,7 @@
 }
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
   .dropzone .default.message {
-    background-image: image-url("dropzone/spritemap@2x.png");
+    background-image: image-path("dropzone/spritemap@2x.png");
     -webkit-background-size: 428px 406px;
     -moz-background-size: 428px 406px;
     background-size: 428px 406px;
@@ -258,7 +258,7 @@
   -o-transition: opacity 0.4s ease-in-out;
   -ms-transition: opacity 0.4s ease-in-out;
   transition: opacity 0.4s ease-in-out;
-  background-image: image-url("dropzone/spritemap.png");
+  background-image: image-path("dropzone/spritemap.png");
   background-repeat: no-repeat;
 }
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
@@ -266,7 +266,7 @@
   .dropzone-previews .preview .error-mark,
   .dropzone .preview .success-mark,
   .dropzone-previews .preview .success-mark {
-    background-image: image-url("dropzone/spritemap@2x.png");
+    background-image: image-path("dropzone/spritemap@2x.png");
     -webkit-background-size: 428px 406px;
     -moz-background-size: 428px 406px;
     background-size: 428px 406px;
@@ -305,14 +305,14 @@
   left: 0;
   width: 0%;
   height: 100%;
-  background-image: image-url("dropzone/spritemap.png");
+  background-image: image-path("dropzone/spritemap.png");
   background-repeat: repeat-x;
   background-position: 0px -400px;
 }
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
   .dropzone .preview .progress .upload,
   .dropzone-previews .preview .progress .upload {
-    background-image: image-url("dropzone/spritemap@2x.png");
+    background-image: image-path("dropzone/spritemap@2x.png");
     -webkit-background-size: 428px 406px;
     -moz-background-size: 428px 406px;
     background-size: 428px 406px;
