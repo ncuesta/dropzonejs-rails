@@ -1,4 +1,4 @@
 module DropzonejsRails
-  VERSION = '0.3.0'
-  DROPZONE_VERSION = '3.0.1'
+  VERSION = '0.3.1'
+  DROPZONE_VERSION = '3.1.0'
 end
