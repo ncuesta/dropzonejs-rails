@@ -27,11 +27,11 @@ After that, you need to make `dropzone.js` available on your pages. To do that, 
 
 And if you would like to use one of the styles bundled with Dropzone, add to your `application.css`:
 ```scss
-//= require dropzone/basic
+*= require dropzone/basic
 ```
 or
 ```scss
-//= require dropzone/dropzone
+*= require dropzone/dropzone
 ```
 
 And **Bam!** - you're all set.
