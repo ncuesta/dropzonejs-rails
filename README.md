@@ -53,8 +53,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ### Getting the latest version of Dropzone
 
-1. Update `DropzonejsRails::DROPZONE_VERSION` to the newest version of Dropzone.
-1. Do a `rake get` - it'll download the file four you.
+1. Run `rake check` to see if there is a newer version of Dropzone available.
+2. If **1.** tells you to do so, run `rake get` - it'll download the files four you.
 
 
 ## Licence (MIT)
