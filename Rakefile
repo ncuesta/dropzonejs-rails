@@ -58,7 +58,7 @@ end
 def fix_image_links(css_file)
   file_name    = DropzonejsRails::Engine.root.join(css_file)
   original_css = File.read(file_name)
-  fixed_css    = original_css.gsub(/url\(\"\.\.\/images\/(.+\.png)\"\)/, 'image-path("dropzone/\1")')
+  fixed_css    = original_css.gsub(/url\(\"\.\.\/images\/(.+\.png)\"\)/, 'image-url("dropzone/\1")')
 
   File.open(file_name, 'w') { |file| file << fixed_css }
 end
