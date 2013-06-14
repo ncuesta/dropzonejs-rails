@@ -64,7 +64,6 @@ require.aliases = {};
 
 require.resolve = function(path) {
   if (path.charAt(0) === '/') path = path.slice(1);
-  var index = path + '/index.js';
 
   var paths = [
     path,
@@ -77,10 +76,7 @@ require.resolve = function(path) {
   for (var i = 0; i < paths.length; i++) {
     var path = paths[i];
     if (require.modules.hasOwnProperty(path)) return path;
-  }
-
-  if (require.aliases.hasOwnProperty(index)) {
-    return require.aliases[index];
+    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
   }
 };
 
@@ -400,6 +396,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
   noop = function() {};
 
   Dropzone = (function(_super) {
+    var extend;
+
     __extends(Dropzone, _super);
 
     /*
@@ -416,6 +414,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.defaultOptions = {
       url: null,
       method: "post",
+      withCredentials: false,
       parallelUploads: 2,
       maxFilesize: 256,
       paramName: "file",
@@ -444,7 +443,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       forceFallback: false,
       fallback: function() {
         var child, messageElement, span, _i, _len, _ref;
-
         this.element.className = "" + this.element.className + " dz-browser-not-supported";
         _ref = this.element.getElementsByTagName("div");
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -467,7 +465,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       },
       resize: function(file) {
         var info, srcRatio, trgRatio;
-
         info = {
           srcX: 0,
           srcY: 0,
@@ -533,11 +530,11 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         return file.previewElement.querySelector("[data-dz-size]").innerHTML = this.filesize(file.size);
       },
       removedfile: function(file) {
-        return file.previewElement.parentNode.removeChild(file.previewElement);
+        var _ref;
+        return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
       },
       thumbnail: function(file, dataUrl) {
         var thumbnailElement;
-
         file.previewElement.classList.remove("dz-file-preview");
         file.previewElement.classList.add("dz-image-preview");
         thumbnailElement = file.previewElement.querySelector("[data-dz-thumbnail]");
@@ -563,12 +560,30 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-success-mark\"><span>✔</span></div>\n  <div class=\"dz-error-mark\"><span>✘</span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n</div>"
     };
 
-    function Dropzone(element, options) {
-      var elementOptions, extend, fallback, _ref;
+    extend = function() {
+      var key, object, objects, target, val, _i, _len;
+      target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      for (_i = 0, _len = objects.length; _i < _len; _i++) {
+        object = objects[_i];
+        for (key in object) {
+          val = object[key];
+          target[key] = val;
+        }
+      }
+      return target;
+    };
 
+    function Dropzone(element, options) {
+      var elementOptions, fallback, _ref;
       this.element = element;
       this.version = Dropzone.version;
       this.defaultOptions.previewTemplate = this.defaultOptions.previewTemplate.replace(/\n*/g, "");
+      this.clickableElements = [];
+      this.listeners = [];
+      this.files = [];
+      this.acceptedFiles = [];
+      this.filesQueue = [];
+      this.filesProcessing = [];
       if (typeof this.element === "string") {
         this.element = document.querySelector(this.element);
       }
@@ -581,19 +596,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       Dropzone.instances.push(this);
       element.dropzone = this;
       elementOptions = (_ref = Dropzone.optionsForElement(this.element)) != null ? _ref : {};
-      extend = function() {
-        var key, object, objects, target, val, _i, _len;
-
-        target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-        for (_i = 0, _len = objects.length; _i < _len; _i++) {
-          object = objects[_i];
-          for (key in object) {
-            val = object[key];
-            target[key] = val;
-          }
-        }
-        return target;
-      };
       this.options = extend({}, this.defaultOptions, elementOptions, options != null ? options : {});
       if (this.options.url == null) {
         this.options.url = this.element.action;
@@ -622,8 +624,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         } else {
           this.clickableElements = Dropzone.getElements(this.options.clickable, "clickable");
         }
-      } else {
-        this.clickableElements = [];
       }
       this.init();
     }
@@ -631,7 +631,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.init = function() {
       var eventName, noPropagation, setupHiddenFileInput, _i, _len, _ref, _ref1,
         _this = this;
-
       if (this.element.tagName === "form") {
         this.element.setAttribute("enctype", "multipart/form-data");
       }
@@ -661,7 +660,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           document.body.appendChild(_this.hiddenFileInput);
           return _this.hiddenFileInput.addEventListener("change", function() {
             var files;
-
             files = _this.hiddenFileInput.files;
             if (files.length) {
               _this.emit("selectedfiles", files);
@@ -672,10 +670,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         };
         setupHiddenFileInput();
       }
-      this.files = [];
-      this.acceptedFiles = [];
-      this.filesQueue = [];
-      this.filesProcessing = [];
       this.URL = (_ref = window.URL) != null ? _ref : window.webkitURL;
       _ref1 = this.events;
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -684,7 +678,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       }
       this.on("uploadprogress", function(file) {
         var totalBytes, totalBytesSent, totalUploadProgress, _j, _len1, _ref2;
-
         totalBytesSent = 0;
         totalBytes = 0;
         _ref2 = _this.acceptedFiles;
@@ -749,9 +742,18 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       return this.options.init.call(this);
     };
 
+    Dropzone.prototype.destroy = function() {
+      var _ref;
+      this.disable();
+      this.removeAllFiles();
+      if ((_ref = this.hiddenFileInput) != null ? _ref.parentNode : void 0) {
+        this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput);
+        return this.hiddenFileInput = null;
+      }
+    };
+
     Dropzone.prototype.getFallbackForm = function() {
       var existingFallback, fields, fieldsString, form;
-
       if (existingFallback = this.getExistingFallback()) {
         return existingFallback;
       }
@@ -773,10 +775,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.getExistingFallback = function() {
       var fallback, getFallback, tagName, _i, _len, _ref;
-
       getFallback = function(elements) {
         var el, _i, _len;
-
         for (_i = 0, _len = elements.length; _i < _len; _i++) {
           el = elements[_i];
           if (/(^| )fallback($| )/.test(el.className)) {
@@ -795,14 +795,12 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.setupEventListeners = function() {
       var elementListeners, event, listener, _i, _len, _ref, _results;
-
       _ref = this.listeners;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elementListeners = _ref[_i];
         _results.push((function() {
           var _ref1, _results1;
-
           _ref1 = elementListeners.events;
           _results1 = [];
           for (event in _ref1) {
@@ -817,14 +815,12 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.removeEventListeners = function() {
       var elementListeners, event, listener, _i, _len, _ref, _results;
-
       _ref = this.listeners;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elementListeners = _ref[_i];
         _results.push((function() {
           var _ref1, _results1;
-
           _ref1 = elementListeners.events;
           _results1 = [];
           for (event in _ref1) {
@@ -838,12 +834,23 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     };
 
     Dropzone.prototype.disable = function() {
+      var file, _i, _j, _len, _len1, _ref, _ref1, _results;
       this.clickableElements.forEach(function(element) {
         return element.classList.remove("dz-clickable");
       });
       this.removeEventListeners();
-      this.filesProcessing = [];
-      return this.filesQueue = [];
+      _ref = this.filesProcessing;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        this.cancelUpload(file);
+      }
+      _ref1 = this.filesQueue;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        file = _ref1[_j];
+        _results.push(this.cancelUpload(file));
+      }
+      return _results;
     };
 
     Dropzone.prototype.enable = function() {
@@ -855,7 +862,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.filesize = function(size) {
       var string;
-
       if (size >= 100000000000) {
         size = size / 100000000000;
         string = "TB";
@@ -877,7 +883,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.drop = function(e) {
       var files;
-
       if (!e.dataTransfer) {
         return;
       }
@@ -890,7 +895,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.handleFiles = function(files) {
       var file, _i, _len, _results;
-
       _results = [];
       for (_i = 0, _len = files.length; _i < _len; _i++) {
         file = files[_i];
@@ -911,13 +915,13 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.addFile = function(file) {
       var _this = this;
-
       file.upload = {
         progress: 0,
         total: file.size,
         bytesSent: 0
       };
       this.files.push(file);
+      file.status = Dropzone.ADDED;
       this.emit("addedfile", file);
       if (this.options.createImageThumbnails && file.type.match(/image.*/) && file.size <= this.options.maxThumbnailFilesize * 1024 * 1024) {
         this.createThumbnail(file);
@@ -927,6 +931,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           file.accepted = false;
           return _this.errorProcessing(file, error);
         } else {
+          file.status = Dropzone.ACCEPTED;
           file.accepted = true;
           _this.acceptedFiles.push(file);
           if (_this.options.enqueueForUpload) {
@@ -938,8 +943,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     };
 
     Dropzone.prototype.removeFile = function(file) {
-      if (file.processing) {
-        throw new Error("Can't remove file currently processing");
+      if (file.status === Dropzone.UPLOADING) {
+        this.cancelUpload(file);
       }
       this.files = without(this.files, file);
       this.filesQueue = without(this.filesQueue, file);
@@ -951,7 +956,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.removeAllFiles = function() {
       var file, _i, _len, _ref;
-
       _ref = this.files.slice();
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         file = _ref[_i];
@@ -965,29 +969,26 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.createThumbnail = function(file) {
       var fileReader,
         _this = this;
-
       fileReader = new FileReader;
       fileReader.onload = function() {
         var img;
-
         img = new Image;
         img.onload = function() {
-          var canvas, ctx, resizeInfo, thumbnail, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
-
+          var canvas, ctx, resizeInfo, thumbnail, _ref, _ref1, _ref2, _ref3;
           file.width = img.width;
           file.height = img.height;
           resizeInfo = _this.options.resize.call(_this, file);
-          if ((_ref = resizeInfo.trgWidth) == null) {
+          if (resizeInfo.trgWidth == null) {
             resizeInfo.trgWidth = _this.options.thumbnailWidth;
           }
-          if ((_ref1 = resizeInfo.trgHeight) == null) {
+          if (resizeInfo.trgHeight == null) {
             resizeInfo.trgHeight = _this.options.thumbnailHeight;
           }
           canvas = document.createElement("canvas");
           ctx = canvas.getContext("2d");
           canvas.width = resizeInfo.trgWidth;
           canvas.height = resizeInfo.trgHeight;
-          ctx.drawImage(img, (_ref2 = resizeInfo.srcX) != null ? _ref2 : 0, (_ref3 = resizeInfo.srcY) != null ? _ref3 : 0, resizeInfo.srcWidth, resizeInfo.srcHeight, (_ref4 = resizeInfo.trgX) != null ? _ref4 : 0, (_ref5 = resizeInfo.trgY) != null ? _ref5 : 0, resizeInfo.trgWidth, resizeInfo.trgHeight);
+          ctx.drawImage(img, (_ref = resizeInfo.srcX) != null ? _ref : 0, (_ref1 = resizeInfo.srcY) != null ? _ref1 : 0, resizeInfo.srcWidth, resizeInfo.srcHeight, (_ref2 = resizeInfo.trgX) != null ? _ref2 : 0, (_ref3 = resizeInfo.trgY) != null ? _ref3 : 0, resizeInfo.trgWidth, resizeInfo.trgHeight);
           thumbnail = canvas.toDataURL("image/png");
           return _this.emit("thumbnail", file, thumbnail);
         };
@@ -998,7 +999,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.processQueue = function() {
       var i, parallelUploads, processingLength;
-
       parallelUploads = this.options.parallelUploads;
       processingLength = this.filesProcessing.length;
       i = processingLength;
@@ -1014,23 +1014,61 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.processFile = function(file) {
       this.filesProcessing.push(file);
       file.processing = true;
+      file.status = Dropzone.UPLOADING;
       this.emit("processingfile", file);
       return this.uploadFile(file);
     };
 
-    Dropzone.prototype.uploadFile = function(file) {
-      var formData, handleError, input, inputName, inputType, key, progressObj, response, value, xhr, _i, _len, _ref, _ref1, _ref2,
-        _this = this;
+    Dropzone.prototype.cancelUpload = function(file) {
+      var _ref;
+      if (file.status === Dropzone.UPLOADING) {
+        file.status = Dropzone.CANCELED;
+        file.xhr.abort();
+        return this.filesProcessing = without(this.filesProcessing, file);
+      } else if ((_ref = file.status) === Dropzone.ADDED || _ref === Dropzone.ACCEPTED) {
+        file.status = Dropzone.CANCELED;
+        return this.filesQueue = without(this.filesQueue, file);
+      }
+    };
 
+    Dropzone.prototype.uploadFile = function(file) {
+      var formData, handleError, header, headers, input, inputName, inputType, key, name, progressObj, response, updateProgress, value, xhr, _i, _len, _ref, _ref1, _ref2,
+        _this = this;
       xhr = new XMLHttpRequest();
+      file.xhr = xhr;
+      xhr.withCredentials = !!this.options.withCredentials;
       xhr.open(this.options.method, this.options.url, true);
       response = null;
       handleError = function() {
         return _this.errorProcessing(file, response || _this.options.dictResponseError.replace("{{statusCode}}", xhr.status), xhr);
       };
+      updateProgress = function(e) {
+        var progress;
+        if (e != null) {
+          progress = 100 * e.loaded / e.total;
+          file.upload = {
+            progress: progress,
+            total: e.total,
+            bytesSent: e.loaded
+          };
+        } else {
+          if (file.upload.progress === 100 && file.upload.bytesSent === file.upload.total) {
+            return;
+          }
+          progress = 100;
+          file.upload.progress = progress;
+          file.upload.bytesSent = file.upload.total;
+        }
+        return _this.emit("uploadprogress", file, progress, file.upload.bytesSent);
+      };
       xhr.onload = function(e) {
         var _ref;
-
+        if (file.status === Dropzone.CANCELED) {
+          return;
+        }
+        if (xhr.readyState !== 4) {
+          return;
+        }
         response = xhr.responseText;
         if (xhr.getResponseHeader("content-type") && ~xhr.getResponseHeader("content-type").indexOf("application/json")) {
           try {
@@ -1040,6 +1078,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
             response = "Invalid JSON response from server.";
           }
         }
+        updateProgress();
         if (!((200 <= (_ref = xhr.status) && _ref < 300))) {
           return handleError();
         } else {
@@ -1047,24 +1086,26 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         }
       };
       xhr.onerror = function() {
+        if (file.status === Dropzone.CANCELED) {
+          return;
+        }
         return handleError();
       };
       progressObj = (_ref = xhr.upload) != null ? _ref : xhr;
-      progressObj.onprogress = function(e) {
-        var progress;
-
-        file.upload = {
-          progress: progress,
-          total: e.total,
-          bytesSent: e.loaded
-        };
-        progress = 100 * e.loaded / e.total;
-        return _this.emit("uploadprogress", file, progress, e.loaded);
+      progressObj.onprogress = updateProgress;
+      headers = {
+        "Accept": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-File-Name": encodeURIComponent(file.name)
       };
-      xhr.setRequestHeader("Accept", "application/json");
-      xhr.setRequestHeader("Cache-Control", "no-cache");
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      xhr.setRequestHeader("X-File-Name", file.name);
+      if (this.options.headers) {
+        extend(headers, this.options.headers);
+      }
+      for (header in headers) {
+        name = headers[header];
+        xhr.setRequestHeader(header, name);
+      }
       formData = new FormData();
       if (this.options.params) {
         _ref1 = this.options.params;
@@ -1092,6 +1133,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.finished = function(file, responseText, e) {
       this.filesProcessing = without(this.filesProcessing, file);
       file.processing = false;
+      file.status = Dropzone.SUCCESS;
       this.processQueue();
       this.emit("success", file, responseText, e);
       this.emit("finished", file, responseText, e);
@@ -1101,6 +1143,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     Dropzone.prototype.errorProcessing = function(file, message, xhr) {
       this.filesProcessing = without(this.filesProcessing, file);
       file.processing = false;
+      file.status = Dropzone.ERROR;
       this.processQueue();
       this.emit("error", file, message, xhr);
       return this.emit("complete", file);
@@ -1110,7 +1153,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   })(Em);
 
-  Dropzone.version = "3.2.0";
+  Dropzone.version = "3.4.1";
 
   Dropzone.options = {};
 
@@ -1125,19 +1168,19 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
   Dropzone.instances = [];
 
   Dropzone.forElement = function(element) {
-    var _ref;
-
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    return (_ref = element.dropzone) != null ? _ref : null;
+    if ((element != null ? element.dropzone : void 0) == null) {
+      throw new Error("No Dropzone found for given element. This is probably because you're trying to access it before Dropzone had the time to initialize. Use the `init` option to setup any additional observers on your Dropzone.");
+    }
+    return element.dropzone;
   };
 
   Dropzone.autoDiscover = true;
 
   Dropzone.discover = function() {
     var checkElements, dropzone, dropzones, _i, _len, _results;
-
     if (!Dropzone.autoDiscover) {
       return;
     }
@@ -1147,7 +1190,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       dropzones = [];
       checkElements = function(elements) {
         var el, _i, _len, _results;
-
         _results = [];
         for (_i = 0, _len = elements.length; _i < _len; _i++) {
           el = elements[_i];
@@ -1178,7 +1220,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   Dropzone.isBrowserSupported = function() {
     var capableBrowser, regex, _i, _len, _ref;
-
     capableBrowser = true;
     if (window.File && window.FileReader && window.FileList && window.Blob && window.FormData && document.querySelector) {
       if (!("classList" in document.createElement("a"))) {
@@ -1201,7 +1242,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   without = function(list, rejectedItem) {
     var item, _i, _len, _results;
-
     _results = [];
     for (_i = 0, _len = list.length; _i < _len; _i++) {
       item = list[_i];
@@ -1220,7 +1260,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   Dropzone.createElement = function(string) {
     var div;
-
     div = document.createElement("div");
     div.innerHTML = string;
     return div.childNodes[0];
@@ -1240,7 +1279,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   Dropzone.getElement = function(el, name) {
     var element;
-
     if (typeof el === "string") {
       element = document.querySelector(el);
     } else if (el.nodeType != null) {
@@ -1254,7 +1292,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   Dropzone.getElements = function(els, name) {
     var e, el, elements, _i, _j, _len, _len1, _ref;
-
     if (els instanceof Array) {
       elements = [];
       try {
@@ -1284,7 +1321,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   Dropzone.isValidMimeType = function(mimeType, acceptedMimeTypes) {
     var baseMimeType, validMimeType, _i, _len;
-
     if (!acceptedMimeTypes) {
       return true;
     }
@@ -1320,6 +1356,18 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     window.Dropzone = Dropzone;
   }
 
+  Dropzone.ADDED = "added";
+
+  Dropzone.ACCEPTED = "accepted";
+
+  Dropzone.UPLOADING = "uploading";
+
+  Dropzone.CANCELED = "canceled";
+
+  Dropzone.ERROR = "error";
+
+  Dropzone.SUCCESS = "success";
+
   /*
   # contentloaded.js
   #
@@ -1337,7 +1385,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   contentLoaded = function(win, fn) {
     var add, doc, done, init, poll, pre, rem, root, top;
-
     done = false;
     top = true;
     doc = win.document;
@@ -1356,7 +1403,6 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     };
     poll = function() {
       var e;
-
       try {
         root.doScroll("left");
       } catch (_error) {
