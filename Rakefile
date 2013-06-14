@@ -25,7 +25,7 @@ task :get do
   fix_image_links 'vendor/assets/stylesheets/dropzone/basic.css.scss'
   fix_image_links 'vendor/assets/stylesheets/dropzone/dropzone.css.scss'
 
-  puts "Done."
+  puts "Done"
 end
 
 desc 'Find the latest dropzone js version and get it'
