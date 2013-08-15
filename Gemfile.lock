@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dropzonejs-rails (0.4.8)
+    dropzonejs-rails (0.4.9)
       rails (> 3.1)
 
 GEM
@@ -33,7 +33,7 @@ GEM
       tzinfo (~> 0.3.37)
     addressable (2.3.5)
     arel (4.0.0)
-    atomic (1.1.10)
+    atomic (1.1.13)
     builder (3.1.4)
     erubis (2.7.0)
     faraday (0.8.7)
@@ -42,7 +42,7 @@ GEM
       faraday (>= 0.7.4, < 0.9)
     hashie (2.0.5)
     hike (1.2.3)
-    i18n (0.6.4)
+    i18n (0.6.5)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
