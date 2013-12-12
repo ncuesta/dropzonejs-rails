@@ -4,7 +4,7 @@ Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file uplo
 
 ## Version
 
-The latest version of this gem bundles **Dropzone v3.7.3**.
+The latest version of this gem bundles **Dropzone v3.7.4**.
 
 ## Installation and usage
 
