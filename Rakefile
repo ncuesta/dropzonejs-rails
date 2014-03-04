@@ -44,8 +44,14 @@ task :check do
 
     puts "A new version of dropzone (v#{latest_version}) has been found, and the source files have been accordingly updated.\nYou may now run: `rake get` to get it."
   else
-    puts "The bundled version of dropzone (v#{DropzonejsRails::DROPZONE_VERSION}) already is the latest one."
+    raise "The bundled version of dropzone (v#{DropzonejsRails::DROPZONE_VERSION}) already is the latest one."
   end
+end
+
+desc 'Bump the dropzone js version to the latest, commit changes and perform a release'
+task bump: [:check, :get] do
+  %x{ git add -u . && git commit -m 'rake bump: Version bump' }
+  Rake::Task['release'].invoke
 end
 
 def download_dropzone_file(source_file, target_file)
