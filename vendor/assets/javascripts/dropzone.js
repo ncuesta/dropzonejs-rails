@@ -1,40 +1,22 @@
+
 ;(function(){
 
 /**
- * Require the given path.
+ * Require the module at `name`.
  *
- * @param {String} path
+ * @param {String} name
  * @return {Object} exports
  * @api public
  */
 
-function require(path, parent, orig) {
-  var resolved = require.resolve(path);
+function require(name) {
+  var module = require.modules[name];
+  if (!module) throw new Error('failed to require "' + name + '"');
 
-  // lookup failed
-  if (null == resolved) {
-    orig = orig || path;
-    parent = parent || 'root';
-    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
-    err.path = orig;
-    err.parent = parent;
-    err.require = true;
-    throw err;
-  }
-
-  var module = require.modules[resolved];
-
-  // perform real require()
-  // by invoking the module's
-  // registered function
-  if (!module._resolving && !module.exports) {
-    var mod = {};
-    mod.exports = {};
-    mod.client = mod.component = true;
-    module._resolving = true;
-    module.call(this, mod.exports, require.relative(resolved), mod);
-    delete module._resolving;
-    module.exports = mod.exports;
+  if (!('exports' in module) && typeof module.definition === 'function') {
+    module.client = module.component = true;
+    module.definition.call(this, module.exports = {}, module);
+    delete module.definition;
   }
 
   return module.exports;
@@ -47,160 +29,33 @@ function require(path, parent, orig) {
 require.modules = {};
 
 /**
- * Registered aliases.
- */
-
-require.aliases = {};
-
-/**
- * Resolve `path`.
+ * Register module at `name` with callback `definition`.
  *
- * Lookup:
- *
- *   - PATH/index.js
- *   - PATH.js
- *   - PATH
- *
- * @param {String} path
- * @return {String} path or null
- * @api private
- */
-
-require.resolve = function(path) {
-  if (path.charAt(0) === '/') path = path.slice(1);
-
-  var paths = [
-    path,
-    path + '.js',
-    path + '.json',
-    path + '/index.js',
-    path + '/index.json'
-  ];
-
-  for (var i = 0; i < paths.length; i++) {
-    var path = paths[i];
-    if (require.modules.hasOwnProperty(path)) return path;
-    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
-  }
-};
-
-/**
- * Normalize `path` relative to the current path.
- *
- * @param {String} curr
- * @param {String} path
- * @return {String}
- * @api private
- */
-
-require.normalize = function(curr, path) {
-  var segs = [];
-
-  if ('.' != path.charAt(0)) return path;
-
-  curr = curr.split('/');
-  path = path.split('/');
-
-  for (var i = 0; i < path.length; ++i) {
-    if ('..' == path[i]) {
-      curr.pop();
-    } else if ('.' != path[i] && '' != path[i]) {
-      segs.push(path[i]);
-    }
-  }
-
-  return curr.concat(segs).join('/');
-};
-
-/**
- * Register module at `path` with callback `definition`.
- *
- * @param {String} path
+ * @param {String} name
  * @param {Function} definition
  * @api private
  */
 
-require.register = function(path, definition) {
-  require.modules[path] = definition;
+require.register = function (name, definition) {
+  require.modules[name] = {
+    definition: definition
+  };
 };
 
 /**
- * Alias a module definition.
+ * Define a module's exports immediately with `exports`.
  *
- * @param {String} from
- * @param {String} to
+ * @param {String} name
+ * @param {Generic} exports
  * @api private
  */
 
-require.alias = function(from, to) {
-  if (!require.modules.hasOwnProperty(from)) {
-    throw new Error('Failed to alias "' + from + '", it does not exist');
-  }
-  require.aliases[to] = from;
-};
-
-/**
- * Return a require function relative to the `parent` path.
- *
- * @param {String} parent
- * @return {Function}
- * @api private
- */
-
-require.relative = function(parent) {
-  var p = require.normalize(parent, '..');
-
-  /**
-   * lastIndexOf helper.
-   */
-
-  function lastIndexOf(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-      if (arr[i] === obj) return i;
-    }
-    return -1;
-  }
-
-  /**
-   * The relative require() itself.
-   */
-
-  function localRequire(path) {
-    var resolved = localRequire.resolve(path);
-    return require(resolved, parent, path);
-  }
-
-  /**
-   * Resolve relative to the parent.
-   */
-
-  localRequire.resolve = function(path) {
-    var c = path.charAt(0);
-    if ('/' == c) return path.slice(1);
-    if ('.' == c) return require.normalize(p, path);
-
-    // resolve deps by returning
-    // the dep in the nearest "deps"
-    // directory
-    var segs = parent.split('/');
-    var i = lastIndexOf(segs, 'deps') + 1;
-    if (!i) i = 0;
-    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-    return path;
+require.define = function (name, exports) {
+  require.modules[name] = {
+    exports: exports
   };
-
-  /**
-   * Check if module is defined at `path`.
-   */
-
-  localRequire.exists = function(path) {
-    return require.modules.hasOwnProperty(localRequire.resolve(path));
-  };
-
-  return localRequire;
 };
-require.register("component-emitter/index.js", function(exports, require, module){
+require.register("component~emitter@1.1.2", function (exports, module) {
 
 /**
  * Expose `Emitter`.
@@ -242,7 +97,8 @@ function mixin(obj) {
  * @api public
  */
 
-Emitter.prototype.on = function(event, fn){
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
   this._callbacks = this._callbacks || {};
   (this._callbacks[event] = this._callbacks[event] || [])
     .push(fn);
@@ -268,7 +124,7 @@ Emitter.prototype.once = function(event, fn){
     fn.apply(this, arguments);
   }
 
-  fn._off = on;
+  on.fn = fn;
   this.on(event, on);
   return this;
 };
@@ -285,8 +141,17 @@ Emitter.prototype.once = function(event, fn){
 
 Emitter.prototype.off =
 Emitter.prototype.removeListener =
-Emitter.prototype.removeAllListeners = function(event, fn){
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
   this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
@@ -297,8 +162,14 @@ Emitter.prototype.removeAllListeners = function(event, fn){
   }
 
   // remove specific handler
-  var i = callbacks.indexOf(fn._off || fn);
-  if (~i) callbacks.splice(i, 1);
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
   return this;
 };
 
@@ -351,16 +222,18 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 });
-require.register("dropzone/index.js", function(exports, require, module){
+
+require.register("dropzone", function (exports, module) {
 
 
 /**
  * Exposing dropzone
  */
-module.exports = require("./lib/dropzone.js");
+module.exports = require("dropzone/lib/dropzone.js");
 
 });
-require.register("dropzone/lib/dropzone.js", function(exports, require, module){
+
+require.register("dropzone/lib/dropzone.js", function (exports, module) {
 /*
 #
 # More info at [www.dropzonejs.com](http://www.dropzonejs.com)
@@ -394,7 +267,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __slice = [].slice;
 
-  Em = typeof Emitter !== "undefined" && Emitter !== null ? Emitter : require("emitter");
+  Em = typeof Emitter !== "undefined" && Emitter !== null ? Emitter : require("component~emitter@1.1.2");
 
   noop = function() {};
 
@@ -433,6 +306,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       acceptedFiles: null,
       acceptedMimeTypes: null,
       autoProcessQueue: true,
+      autoQueue: true,
       addRemoveLinks: false,
       previewsContainer: null,
       dictDefaultMessage: "Drop files here to upload",
@@ -484,8 +358,20 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           srcHeight: file.height
         };
         srcRatio = file.width / file.height;
-        trgRatio = this.options.thumbnailWidth / this.options.thumbnailHeight;
-        if (file.height < this.options.thumbnailHeight || file.width < this.options.thumbnailWidth) {
+        info.optWidth = this.options.thumbnailWidth;
+        info.optHeight = this.options.thumbnailHeight;
+        if (!((info.optWidth != null) && (info.optHeigh != null))) {
+          if ((info.optWidth == null) && (info.optHeight == null)) {
+            info.optWidth = info.srcWidth;
+            info.optHeight = info.srcHeight;
+          } else if (info.optWidth == null) {
+            info.optWidth = srcRatio * info.optHeight;
+          } else if (info.optHeight == null) {
+            info.optHeight = (1 / srcRatio) * info.optWidth;
+          }
+        }
+        trgRatio = info.optWidth / info.optHeight;
+        if (file.height < info.optHeight || file.width < info.optWidth) {
           info.trgHeight = info.srcHeight;
           info.trgWidth = info.srcWidth;
         } else {
@@ -747,26 +633,34 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       return _results;
     };
 
-    Dropzone.prototype.getQueuedFiles = function() {
+    Dropzone.prototype.getFilesWithStatus = function(status) {
       var file, _i, _len, _ref, _results;
       _ref = this.files;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         file = _ref[_i];
-        if (file.status === Dropzone.QUEUED) {
+        if (file.status === status) {
           _results.push(file);
         }
       }
       return _results;
     };
 
+    Dropzone.prototype.getQueuedFiles = function() {
+      return this.getFilesWithStatus(Dropzone.QUEUED);
+    };
+
     Dropzone.prototype.getUploadingFiles = function() {
+      return this.getFilesWithStatus(Dropzone.UPLOADING);
+    };
+
+    Dropzone.prototype.getActiveFiles = function() {
       var file, _i, _len, _ref, _results;
       _ref = this.files;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         file = _ref[_i];
-        if (file.status === Dropzone.UPLOADING) {
+        if (file.status === Dropzone.UPLOADING || file.status === Dropzone.QUEUED) {
           _results.push(file);
         }
       }
@@ -792,6 +686,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           if ((_this.options.maxFiles == null) || _this.options.maxFiles > 1) {
             _this.hiddenFileInput.setAttribute("multiple", "multiple");
           }
+          _this.hiddenFileInput.className = "dz-hidden-input";
           if (_this.options.acceptedFiles != null) {
             _this.hiddenFileInput.setAttribute("accept", _this.options.acceptedFiles);
           }
@@ -908,12 +803,12 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     };
 
     Dropzone.prototype.updateTotalUploadProgress = function() {
-      var acceptedFiles, file, totalBytes, totalBytesSent, totalUploadProgress, _i, _len, _ref;
+      var activeFiles, file, totalBytes, totalBytesSent, totalUploadProgress, _i, _len, _ref;
       totalBytesSent = 0;
       totalBytes = 0;
-      acceptedFiles = this.getAcceptedFiles();
-      if (acceptedFiles.length) {
-        _ref = this.getAcceptedFiles();
+      activeFiles = this.getActiveFiles();
+      if (activeFiles.length) {
+        _ref = this.getActiveFiles();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           file = _ref[_i];
           totalBytesSent += file.upload.bytesSent;
@@ -926,6 +821,14 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       return this.emit("totaluploadprogress", totalUploadProgress, totalBytes, totalBytesSent);
     };
 
+    Dropzone.prototype._getParamName = function(n) {
+      if (typeof this.options.paramName === "function") {
+        return this.options.paramName(n);
+      } else {
+        return "" + this.options.paramName + (this.options.uploadMultiple ? "[" + n + "]" : "");
+      }
+    };
+
     Dropzone.prototype.getFallbackForm = function() {
       var existingFallback, fields, fieldsString, form;
       if (existingFallback = this.getExistingFallback()) {
@@ -935,7 +838,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       if (this.options.dictFallbackText) {
         fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
       }
-      fieldsString += "<input type=\"file\" name=\"" + this.options.paramName + (this.options.uploadMultiple ? "[]" : "") + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
       fields = Dropzone.createElement(fieldsString);
       if (this.element.tagName !== "FORM") {
         form = Dropzone.createElement("<form action=\"" + this.options.url + "\" enctype=\"multipart/form-data\" method=\"" + this.options.method + "\"></form>");
@@ -1181,7 +1084,10 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           file.accepted = false;
           _this._errorProcessing([file], error);
         } else {
-          _this.enqueueFile(file);
+          file.accepted = true;
+          if (_this.options.autoQueue) {
+            _this.enqueueFile(file);
+          }
         }
         return _this._updateMaxFilesReachedClass();
       });
@@ -1198,8 +1104,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
     Dropzone.prototype.enqueueFile = function(file) {
       var _this = this;
-      file.accepted = true;
-      if (file.status === Dropzone.ADDED) {
+      if (file.status === Dropzone.ADDED && file.accepted === true) {
         file.status = Dropzone.QUEUED;
         if (this.options.autoProcessQueue) {
           return setTimeout((function() {
@@ -1276,10 +1181,10 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           file.height = img.height;
           resizeInfo = _this.options.resize.call(_this, file);
           if (resizeInfo.trgWidth == null) {
-            resizeInfo.trgWidth = _this.options.thumbnailWidth;
+            resizeInfo.trgWidth = resizeInfo.optWidth;
           }
           if (resizeInfo.trgHeight == null) {
-            resizeInfo.trgHeight = _this.options.thumbnailHeight;
+            resizeInfo.trgHeight = resizeInfo.optHeight;
           }
           canvas = document.createElement("canvas");
           ctx = canvas.getContext("2d");
@@ -1389,7 +1294,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
     };
 
     Dropzone.prototype.uploadFiles = function(files) {
-      var file, formData, handleError, headerName, headerValue, headers, input, inputName, inputType, key, option, progressObj, response, updateProgress, value, xhr, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4,
+      var file, formData, handleError, headerName, headerValue, headers, i, input, inputName, inputType, key, option, progressObj, response, updateProgress, value, xhr, _i, _j, _k, _l, _len, _len1, _len2, _len3, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5,
         _this = this;
       xhr = new XMLHttpRequest();
       for (_i = 0, _len = files.length; _i < _len; _i++) {
@@ -1520,9 +1425,8 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
           }
         }
       }
-      for (_m = 0, _len4 = files.length; _m < _len4; _m++) {
-        file = files[_m];
-        formData.append("" + this.options.paramName + (this.options.uploadMultiple ? "[]" : ""), file, file.name);
+      for (i = _m = 0, _ref5 = files.length - 1; 0 <= _ref5 ? _m <= _ref5 : _m >= _ref5; i = 0 <= _ref5 ? ++_m : --_m) {
+        formData.append(this._getParamName(i), files[i], files[i].name);
       }
       return xhr.send(formData);
     };
@@ -1565,7 +1469,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   })(Em);
 
-  Dropzone.version = "3.8.4";
+  Dropzone.version = "3.9.0";
 
   Dropzone.options = {};
 
@@ -1663,7 +1567,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 
   camelize = function(str) {
     return str.replace(/[\-_](\w)/g, function(match) {
-      return match[1].toUpperCase();
+      return match.charAt(1).toUpperCase();
     });
   };
 
@@ -1908,12 +1812,12 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
 }).call(this);
 
 });
-require.alias("component-emitter/index.js", "dropzone/deps/emitter/index.js");
-require.alias("component-emitter/index.js", "emitter/index.js");
+
 if (typeof exports == "object") {
   module.exports = require("dropzone");
 } else if (typeof define == "function" && define.amd) {
-  define(function(){ return require("dropzone"); });
+  define([], function(){ return require("dropzone"); });
 } else {
   this["Dropzone"] = require("dropzone");
-}})();
+}
+})()
