@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dropzonejs-rails (0.4.15)
+    dropzonejs-rails (0.4.16)
       rails (> 3.1)
 
 GEM

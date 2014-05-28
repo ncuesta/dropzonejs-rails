@@ -50,7 +50,7 @@ end
 
 desc 'Bump the dropzone js version to the latest, commit changes and perform a release'
 task bump: [:check, :get] do
-  %x{ git add -u . && git commit -m 'rake bump: Version bump' }
+  %x{ git add -A . && git commit -m 'rake bump: Version bump' }
   Rake::Task['release'].invoke
 end
 
