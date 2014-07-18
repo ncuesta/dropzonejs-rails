@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{lib,vendor}/**/*"] + ['LICENSE', 'Rakefile', 'README.md']
 
   s.add_development_dependency 'octokit', '~> 1.0'
+  s.add_development_dependency 'faraday', '~> 0.8.0'
 
   s.add_dependency 'rails', '> 3.1'
 end
