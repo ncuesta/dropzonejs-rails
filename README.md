@@ -58,6 +58,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.5.1
+  * Fixes incorrect references to the old vendor/ directory.
 * v0.5.0
   * Moves assets to the `app/` directory so that Rails 4 adds them to the Sprockets
     pipeline. Kudos to @senny for pointing this out.
