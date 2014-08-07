@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Integrates Dropzone JS File upload into Rails Asset pipeline.'
   s.description = 'Adds Dropzone, a great JS File upload by Matias Meno, to the Rails Asset pipeline.'
 
-  s.files = Dir["{lib,vendor}/**/*"] + ['LICENSE', 'Rakefile', 'README.md']
+  s.files = Dir["{lib,app}/**/*"] + ['LICENSE', 'Rakefile', 'README.md']
 
   s.add_development_dependency 'octokit', '~> 1.0'
   s.add_development_dependency 'faraday', '~> 0.8.0'

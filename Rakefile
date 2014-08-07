@@ -15,15 +15,15 @@ desc 'Get latest dropzone js build'
 task :get do
   puts "Fetching dropzone v#{DropzonejsRails::DROPZONE_VERSION}..."
 
-  download_dropzone_file 'dropzone.js', 'vendor/assets/javascripts/dropzone.js'
-  download_dropzone_file 'css/basic.css', 'vendor/assets/stylesheets/dropzone/basic.css.scss'
-  download_dropzone_file 'css/dropzone.css', 'vendor/assets/stylesheets/dropzone/dropzone.css.scss'
-  download_dropzone_file 'images/spritemap.png', 'vendor/assets/images/dropzone/spritemap.png'
-  download_dropzone_file 'images/spritemap@2x.png', 'vendor/assets/images/dropzone/spritemap@2x.png'
+  download_dropzone_file 'dropzone.js', 'app/assets/javascripts/dropzone.js'
+  download_dropzone_file 'css/basic.css', 'app/assets/stylesheets/dropzone/basic.css.scss'
+  download_dropzone_file 'css/dropzone.css', 'app/assets/stylesheets/dropzone/dropzone.css.scss'
+  download_dropzone_file 'images/spritemap.png', 'app/assets/images/dropzone/spritemap.png'
+  download_dropzone_file 'images/spritemap@2x.png', 'app/assets/images/dropzone/spritemap@2x.png'
 
   puts "Fixing image paths..."
-  fix_image_links 'vendor/assets/stylesheets/dropzone/basic.css.scss'
-  fix_image_links 'vendor/assets/stylesheets/dropzone/dropzone.css.scss'
+  fix_image_links 'app/assets/stylesheets/dropzone/basic.css.scss'
+  fix_image_links 'app/assets/stylesheets/dropzone/dropzone.css.scss'
 
   puts "Done"
 end
