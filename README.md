@@ -56,6 +56,11 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 1. Run `rake check` to see if there is a newer version of Dropzone available.
 2. If **1.** tells you to do so, run `rake get` - it'll download the files four you.
 
+## Changelog
+
+* v0.5.0
+  * Moves assets to the `app/` directory so that Rails 4 adds them to the Sprockets
+    pipeline. Kudos to @senny for pointing this out.
 
 ## Licence (MIT)
 
