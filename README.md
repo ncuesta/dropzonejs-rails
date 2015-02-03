@@ -4,7 +4,11 @@ Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file uplo
 
 ## Version
 
-The latest version of this gem bundles **Dropzone v3.12.0**.
+The latest version of this gem bundles **Dropzone v4.0.0**.
+
+### Dropzone 3.x
+
+If you depend on Dropzone's 3.x branch, you need to specify `gem 'dropzonejs-rails', '~> 0.6.0'` in your Gemfile, otherwise you'll get 4.x.
 
 ## Installation and usage
 
@@ -58,6 +62,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.7.0
+  * Updates Dropzone to the 4.x branch
 * v0.5.1
   * Moves assets to the `app/` directory so that Rails 4 adds them to the Sprockets
     pipeline. Kudos to @senny for pointing this out.
@@ -65,7 +71,7 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Licence (MIT)
 
-(c) Copyright 2013 José Nahuel Cuesta Luengo
+(c) Copyright 2013-2015 José Nahuel Cuesta Luengo
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -14,17 +14,9 @@ require 'dropzonejs-rails'
 desc 'Get latest dropzone js build'
 task :get do
   puts "Fetching dropzone v#{DropzonejsRails::DROPZONE_VERSION}..."
-
   download_dropzone_file 'dropzone.js', 'app/assets/javascripts/dropzone.js'
-  download_dropzone_file 'css/basic.css', 'app/assets/stylesheets/dropzone/basic.scss'
-  download_dropzone_file 'css/dropzone.css', 'app/assets/stylesheets/dropzone/dropzone.scss'
-  download_dropzone_file 'images/spritemap.png', 'app/assets/images/dropzone/spritemap.png'
-  download_dropzone_file 'images/spritemap@2x.png', 'app/assets/images/dropzone/spritemap@2x.png'
-
-  puts "Fixing image paths..."
-  fix_image_links 'app/assets/stylesheets/dropzone/basic.scss'
-  fix_image_links 'app/assets/stylesheets/dropzone/dropzone.scss'
-
+  download_dropzone_file 'basic.css', 'app/assets/stylesheets/dropzone/basic.scss'
+  download_dropzone_file 'dropzone.css', 'app/assets/stylesheets/dropzone/dropzone.scss'
   puts "Done"
 end
 
@@ -55,18 +47,10 @@ task bump: [:check, :get] do
 end
 
 def download_dropzone_file(source_file, target_file)
-  source = "https://raw.github.com/enyo/dropzone/v#{DropzonejsRails::DROPZONE_VERSION}/downloads/#{source_file}"
+  source = "https://raw.githubusercontent.com/enyo/dropzone/v#{DropzonejsRails::DROPZONE_VERSION}/dist/#{source_file}"
   target = DropzonejsRails::Engine.root.join(target_file)
 
   File.open(target, 'wb+') { |f| f << open(source, 'rb').read }
-end
-
-def fix_image_links(css_file)
-  file_name    = DropzonejsRails::Engine.root.join(css_file)
-  original_css = File.read(file_name)
-  fixed_css    = original_css.gsub(/url\(\"\.\.\/images\/(.+\.png)\"\)/, 'image-url("dropzone/\1")')
-
-  File.open(file_name, 'w') { |file| file << fixed_css }
 end
 
 def sed(filename, replacements)
