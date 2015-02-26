@@ -8,7 +8,7 @@ The latest version of this gem bundles **Dropzone v4.0.1**.
 
 ### Dropzone 3.x
 
-If you depend on Dropzone's 3.x branch, you need to specify `gem 'dropzonejs-rails', '~> 0.6.0'` in your Gemfile, otherwise you'll get 4.x.
+If you depend on Dropzone's 3.x branch, you need to specify `gem 'dropzonejs-rails', '~> 0.5.3'` in your Gemfile, otherwise you'll get 4.x.
 
 ## Installation and usage
 
