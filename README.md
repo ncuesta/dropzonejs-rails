@@ -71,7 +71,7 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Licence (MIT)
 
-(c) Copyright 2013-2015 José Nahuel Cuesta Luengo
+(c) Copyright 2013-2016 José Nahuel Cuesta Luengo
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
