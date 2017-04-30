@@ -66,7 +66,9 @@ def sed(filename, replacements)
 end
 
 def new_version
-  DropzonejsRails::VERSION.next
+  parts = DropzonejsRails::VERSION.split('.')
+  parts[2] = parts[2].next
+  parts.join '.'
 end
 
 def latest_version
