@@ -63,6 +63,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.7.4
+  * Refactors rake tasks for better separation of concerns and a cleaner use. **#41 By [@thomasstephane](https://github.com/thomasstephane).**
 * v0.7.0
   * Updates Dropzone to the 4.x branch
 * v0.5.1
