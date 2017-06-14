@@ -6,6 +6,10 @@ Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file uplo
 
 The latest version of this gem bundles **Dropzone v5.1.0**.
 
+### Dropzone 4.x
+
+If you depend on Dropzone's 4.x branch, you need to specify `gem 'dropzonejs-rails', '~> 0.7.4'` in your Gemfile, otherwise you'll get 5.x.
+
 ### Dropzone 3.x
 
 If you depend on Dropzone's 3.x branch, you need to specify `gem 'dropzonejs-rails', '~> 0.5.3'` in your Gemfile, otherwise you'll get 4.x.
@@ -63,6 +67,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.8.0
+  * Updates Dropzone to the 5.1 branch. **#43 By [@lerarybak](https://github.com/lerarybak).**
 * v0.7.4
   * Refactors rake tasks for better separation of concerns and a cleaner use. **#41 By [@thomasstephane](https://github.com/thomasstephane).**
 * v0.7.0
