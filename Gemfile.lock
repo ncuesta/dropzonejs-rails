@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dropzonejs-rails (0.7.4)
+    dropzonejs-rails (0.8.0)
       rails (> 3.1)
 
 GEM
@@ -56,23 +56,23 @@ GEM
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     hashie (2.1.2)
-    i18n (0.8.1)
+    i18n (0.8.4)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
-    mail (2.6.4)
+    mail (2.6.5)
       mime-types (>= 1.16, < 4)
     method_source (0.8.2)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.2.0)
     minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (1.2.0)
     netrc (0.7.9)
     nio4r (1.2.1)
-    nokogiri (1.7.1)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
     octokit (1.25.0)
       addressable (~> 2.2)
       faraday (~> 0.8)
