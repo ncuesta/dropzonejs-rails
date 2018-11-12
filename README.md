@@ -67,6 +67,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.8.4
+  * Updates Dropzone to 5.5.0 **#52 by [@HuntBurdick](https://github.com/HuntBurdick).**
 * v0.8.1
   * Updates Dropzone to 5.1.1 **#44 by [@lerarybak](https://github.com/lerarybak).**
 * v0.8.0
@@ -82,7 +84,7 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Licence (MIT)
 
-(c) Copyright 2013-2017 José Nahuel Cuesta Luengo
+(c) Copyright 2013-2018 José Nahuel Cuesta Luengo
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
