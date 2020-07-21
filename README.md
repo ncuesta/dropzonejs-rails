@@ -4,7 +4,7 @@ Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file uplo
 
 ## Version
 
-The latest version of this gem bundles **Dropzone v5.5.0**.
+The latest version of this gem bundles **Dropzone v5.7.1**.
 
 ### Dropzone 4.x
 
@@ -67,6 +67,8 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Changelog
 
+* v0.8.5
+  * Updates Dropzone to 5.7.1 **(kudos to [@pnghai](https://github.com/pnghai).**
 * v0.8.4
   * Updates Dropzone to 5.5.0 **#52 by [@HuntBurdick](https://github.com/HuntBurdick).**
 * v0.8.1
@@ -84,7 +86,7 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 
 ## Licence (MIT)
 
-(c) Copyright 2013-2018 José Nahuel Cuesta Luengo
+(c) Copyright 2013-2020 José Nahuel Cuesta Luengo
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
