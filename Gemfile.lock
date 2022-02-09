@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dropzonejs-rails (0.8.5)
+    dropzonejs-rails (0.9.0)
       rails (> 3.1)
 
 GEM
@@ -115,7 +115,6 @@ GEM
     marcel (1.0.2)
     method_source (1.0.0)
     mini_mime (1.1.2)
-    mini_portile2 (2.7.1)
     minitest (5.15.0)
     multipart-post (2.1.1)
     net-imap (0.2.3)
@@ -134,8 +133,7 @@ GEM
       net-protocol
       timeout
     nio4r (2.5.8)
-    nokogiri (1.13.1)
-      mini_portile2 (~> 2.7.0)
+    nokogiri (1.13.1-x86_64-darwin)
       racc (~> 1.4)
     octokit (4.22.0)
       faraday (>= 0.9)

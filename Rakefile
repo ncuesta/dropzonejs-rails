@@ -25,9 +25,9 @@ namespace :dropzone do
   task :replace do
     puts "=> Fetching dropzone v#{DropzonejsRails::DROPZONE_VERSION}..."
     download_dropzone_file 'dropzone.js', 'app/assets/javascripts/dropzone.js'
-    download_dropzone_file 'basic.css', 'app/assets/stylesheets/dropzone/basic.scss'
-    download_dropzone_file 'dropzone.css', 'app/assets/stylesheets/dropzone/dropzone.scss'
-    puts " ✔ Fetched"
+    download_dropzone_file 'basic.css', 'app/assets/stylesheets/dropzone/basic.css'
+    download_dropzone_file 'dropzone.css', 'app/assets/stylesheets/dropzone/dropzone.css'
+    puts ' ✔ Fetched'
     version = File.join(File.dirname(__FILE__), 'lib', 'dropzonejs-rails', 'version.rb')
 
     puts "=> Update dropzonejs-rails version from '#{DropzonejsRails::VERSION}' to '#{new_version}'"
@@ -38,39 +38,49 @@ namespace :dropzone do
 
     readme = File.join(File.dirname(__FILE__), 'README.md')
     sed readme, { /\*\*Dropzone v#{DropzonejsRails::DROPZONE_VERSION}\*\*/ => "**Dropzone v#{latest_version}**" }
-    puts " ✔ Done"
+    puts ' ✔ Done'
   end
 
   desc 'Bump the dropzone js version to the latest, commit changes and perform a release'
-  task bump: [:check, :replace] do
-    puts "=> Commit and release"
-    %x{ git add -A . && git commit -m 'rake bump: Version bump' }
+  task bump: %i[check replace] do
+    puts '=> Commit and release'
+    `git add -A . && git commit -m 'rake bump: Version bump'`
     Rake::Task['release'].invoke
-    puts " ✔ Done"
+    puts ' ✔ Done'
   end
 end
 
 def download_dropzone_file(source_file, target_file)
   source = "https://raw.githubusercontent.com/enyo/dropzone/v#{DropzonejsRails::DROPZONE_VERSION}/dist/#{source_file}"
   target = DropzonejsRails::Engine.root.join(target_file)
+  puts "Downloading #{source} into #{target}..."
 
-  File.open(target, 'wb+') { |f| f << open(source, 'rb').read }
+  File.open(target, 'wb+') { |f| f << URI.open(source, 'rb').read }
 end
 
 def sed(filename, replacements)
   contents = File.read(filename)
   replacements.each_pair do |pattern, replacement|
-     contents.gsub!(pattern, replacement)
+    contents.gsub!(pattern, replacement)
   end
   File.write filename, contents
 end
 
-def new_version
+def new_version(bump_part = 2)
   parts = DropzonejsRails::VERSION.split('.')
-  parts[2] = parts[2].next
+  parts[bump_part] = parts[bump_part].next
   parts.join '.'
 end
 
 def latest_version
-  Octokit.tags('enyo/dropzone').first.name.gsub(/[^\d\.]/, '')
+  tags = Octokit.tags('enyo/dropzone')
+  major_version = ENV['DROPZONE_MAJOR_VERSION']
+  latest_tag = if major_version
+                 tags.detect { |tag| tag.name =~ /\Av#{major_version}\./ }
+               else
+                 tags.first
+               end
+  raise ArgumentError, "Cannot find any tags for Dropzone's #{major_version}.x major version" unless latest_tag
+
+  latest_tag.name.gsub(/\Av/, '')
 end

@@ -4,7 +4,7 @@ Integrate [Matias Meno's Dropzone](http://www.dropzonejs.com/) awesome file uplo
 
 ## Version
 
-The latest version of this gem bundles **Dropzone v5.7.1**.
+The latest version of this gem bundles **Dropzone v5.9.3**.
 
 ### Dropzone 4.x
 
@@ -65,8 +65,14 @@ Go to [this secret place](https://github.com/ncuesta/dropzonejs-rails/issues).
 2. If **1.** tells you that a new version is available, you can run `rake dropzone:replace` - it'll download the files for you.
 3. If **1.** tells you that a new version is available, you can run `rake dropzone:bump` - it'll download the files, commit and release them for you.
 
+> Note: this will look for the very latest tag on the `enyo/dropzone` repo by default, but you can change this behavior by specifying the major version to restrict that search to by using the `DROPZONE_MAJOR_VERSION` environment variable. Same thing applies to the rest of the `dropzone:*` rake tasks.
+> For instance, running `rake dropzone:check DROPZONE_MAJOR_VERSION=4` will look for the latest 4.x tag.
+
 ## Changelog
 
+* v0.9.0
+  * Updates Dropzone to 5.9.3.
+  * Adds ability to specify the desired major version when checking or downloading Dropzone via the `DROPZONE_MAJOR_VERSION` environment variable.
 * v0.8.5
   * Updates Dropzone to 5.7.1 **(kudos to [@pnghai](https://github.com/pnghai).**
 * v0.8.4
